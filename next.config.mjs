@@ -3,19 +3,9 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   experimental: {
-    turbo: {
-      rules: {
-        // Optimize client-side bundle
-        minify: true,
-        // Enable server components
-        serverComponents: true
-      }
-    },
-    // Enable optimizations
+    turbo: true,
     optimizeCss: true,
-    optimizePackageImports: ['@radix-ui', '@shadcn'],
-    // Modern bundle optimization
-    modernBuild: true
+    optimizePackageImports: ['@radix-ui', '@shadcn']
   },
   // For Telegram WebApp
   typescript: {
@@ -35,7 +25,7 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
           // Add security headers
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
         ],
       },
@@ -53,12 +43,7 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   productionBrowserSourceMaps: false,
-  reactStrictMode: true,
-  // Cache optimization
-  onDemandEntries: {
-    maxInactiveAge: 60 * 60 * 1000,
-    pagesBufferLength: 5,
-  }
+  reactStrictMode: true
 }
 
 export default nextConfig 
