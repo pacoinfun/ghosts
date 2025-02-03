@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+  poweredByHeader: false,
   // For Telegram WebApp
   typescript: {
     ignoreBuildErrors: true,
@@ -24,7 +26,13 @@ const nextConfig = {
   images: {
     domains: ['telegram.org'],
     formats: ['image/webp'],
-  }
+    unoptimized: process.env.NODE_ENV === 'development'
+  },
+  // Production optimizations
+  swcMinify: true,
+  compress: true,
+  productionBrowserSourceMaps: false,
+  reactStrictMode: true
 }
 
 export default nextConfig 
