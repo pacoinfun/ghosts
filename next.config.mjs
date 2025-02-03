@@ -3,7 +3,15 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   experimental: {
-    turbo: true,
+    turbo: {
+      enabled: true,
+      loaders: {
+        // Configure loaders for improved performance
+        '.js': ['swc-loader'],
+        '.ts': ['swc-loader'],
+        '.tsx': ['swc-loader'],
+      },
+    },
     optimizeCss: true,
     optimizePackageImports: ['@radix-ui', '@shadcn']
   },
