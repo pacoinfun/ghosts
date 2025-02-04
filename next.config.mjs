@@ -26,7 +26,10 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-          { key: 'Content-Security-Policy', value: "default-src 'self' telegram.org *.telegram.org; script-src 'self' 'unsafe-inline' telegram.org *.telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: telegram.org *.telegram.org; connect-src 'self' telegram.org *.telegram.org;" },
+          { 
+            key: 'Content-Security-Policy', 
+            value: "default-src 'self' telegram.org *.telegram.org; script-src 'self' 'unsafe-inline' 'unsafe-eval' telegram.org *.telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: telegram.org *.telegram.org; connect-src 'self' telegram.org *.telegram.org;" 
+          },
         ],
       },
     ]
