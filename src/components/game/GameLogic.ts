@@ -1,6 +1,8 @@
+export type GameObjectType = 'ghost' | 'bomb' | 'net';
+
 export interface GameObject {
   id: string;
-  type: 'ghost' | 'bomb' | 'net';
+  type: GameObjectType;
   x: number;
   y: number;
   speed: number;
@@ -9,18 +11,30 @@ export interface GameObject {
   isFrozen: boolean;
 }
 
+interface SpawnChances {
+  ghost: number;
+  bomb: number;
+  net: number;
+}
+
 export class GameLogic {
   private items: GameObject[] = [];
   private readonly gameWidth: number;
   private readonly gameHeight: number;
   private spawnRate: number = 600;
-  private readonly spawnChances = {
+  private readonly spawnChances: SpawnChances = {
     ghost: 0.75,
     bomb: 0.15,
     net: 0.1
   };
   private lastSpawnTime: number = 0;
   private multiSpawnCount: number = 1;
+  private readonly MAX_ITEMS = 25;
+  private readonly BASE_SPEEDS = {
+    ghost: 3,
+    bomb: 2.5,
+    net: 2.5
+  } as const;
 
   constructor(gameWidth: number, gameHeight: number) {
     this.gameWidth = gameWidth;
@@ -28,53 +42,66 @@ export class GameLogic {
     this.lastSpawnTime = performance.now();
   }
 
-  spawnItem() {
+  private generateId(): string {
+    return Math.random().toString(36).substring(2, 11);
+  }
+
+  private getRandomPosition(size: number): number {
+    const section = Math.floor(Math.random() * 5);
+    const sectionWidth = this.gameWidth / 5;
+    return (section * sectionWidth) + (Math.random() * (sectionWidth - size));
+  }
+
+  private calculateItemSize(type: GameObjectType): number {
+    return type === 'ghost' ? 40 : 35;
+  }
+
+  private calculateSpeed(type: GameObjectType): number {
+    const baseSpeed = this.BASE_SPEEDS[type];
+    const randomSpeed = Math.random() * 1.5;
+    return baseSpeed + randomSpeed;
+  }
+
+  private determineType(): GameObjectType {
+    const random = Math.random();
+    if (random < this.spawnChances.ghost) return 'ghost';
+    if (random < this.spawnChances.ghost + this.spawnChances.bomb) return 'bomb';
+    return 'net';
+  }
+
+  spawnItem(): GameObject | null {
     const currentTime = performance.now();
     if (currentTime - this.lastSpawnTime < this.spawnRate) {
       return null;
     }
     this.lastSpawnTime = currentTime;
 
-    for (let i = 0; i < this.multiSpawnCount; i++) {
-      const random = Math.random();
-      let type: 'ghost' | 'bomb' | 'net';
-      
-      if (random < this.spawnChances.ghost) {
-        type = 'ghost';
-      } else if (random < this.spawnChances.ghost + this.spawnChances.bomb) {
-        type = 'bomb';
-      } else {
-        type = 'net';
-      }
+    if (this.items.length >= this.MAX_ITEMS) {
+      return null;
+    }
 
-      const size = type === 'ghost' ? 40 : 35;
-      const section = Math.floor(Math.random() * 5);
-      const sectionWidth = this.gameWidth / 5;
-      const x = (section * sectionWidth) + (Math.random() * (sectionWidth - size));
-      
-      const baseSpeed = type === 'ghost' ? 3 : 2.5;
-      const randomSpeed = Math.random() * 1.5;
+    for (let i = 0; i < this.multiSpawnCount; i++) {
+      const type = this.determineType();
+      const size = this.calculateItemSize(type);
       
       const item: GameObject = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: this.generateId(),
         type,
-        x,
+        x: this.getRandomPosition(size),
         y: -size,
-        speed: baseSpeed + randomSpeed,
+        speed: this.calculateSpeed(type),
         size,
         isClicked: false,
         isFrozen: false
       };
 
-      if (this.items.length < 25) {
-        this.items.push(item);
-      }
+      this.items.push(item);
     }
 
     return this.items[this.items.length - 1];
   }
 
-  updatePositions(deltaTime: number) {
+  updatePositions(deltaTime: number): void {
     const secondsElapsed = deltaTime / 1000;
     
     this.items = this.items.filter(item => {
@@ -101,19 +128,19 @@ export class GameLogic {
     return null;
   }
 
-  freezeAllItems() {
+  freezeAllItems(): void {
     this.items.forEach(item => {
       item.isFrozen = true;
     });
   }
 
-  unfreezeAllItems() {
+  unfreezeAllItems(): void {
     this.items.forEach(item => {
       item.isFrozen = false;
     });
   }
 
-  increaseSpeed() {
+  increaseSpeed(): void {
     this.spawnRate = Math.max(300, this.spawnRate - 40);
     
     if (this.multiSpawnCount < 3) {
@@ -129,15 +156,15 @@ export class GameLogic {
     this.spawnChances.net = (1 - this.spawnChances.ghost) * 0.4;
   }
 
-  getSpawnRate() {
+  getSpawnRate(): number {
     return this.spawnRate;
   }
 
-  getItems() {
+  getItems(): GameObject[] {
     return this.items;
   }
 
-  clear() {
+  clear(): void {
     this.items = [];
     this.spawnRate = 600;
     this.lastSpawnTime = performance.now();
