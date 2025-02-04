@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -31,7 +33,12 @@ const nextConfig = {
   },
   // Optimize images
   images: {
-    domains: ['telegram.org'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'telegram.org',
+      },
+    ],
     formats: ['image/avif', 'image/webp'],
     unoptimized: process.env.NODE_ENV === 'development',
     deviceSizes: [640, 750, 828, 1080, 1200],
@@ -88,9 +95,7 @@ const nextConfig = {
                   /node_modules[/\\]/.test(module.identifier());
               },
               name(module) {
-                const hash = crypto.createHash('sha1');
-                hash.update(module.identifier());
-                return hash.digest('hex').substring(0, 8);
+                return `lib-${module.identifier().split('/').pop().replace(/\.[^/.]+$/, '')}`;
               },
               priority: 30,
               minChunks: 1,
@@ -103,10 +108,7 @@ const nextConfig = {
             },
             shared: {
               name(module, chunks) {
-                return crypto
-                  .createHash('sha1')
-                  .update(chunks.reduce((acc, chunk) => acc + chunk.name, ''))
-                  .digest('hex');
+                return `shared-${chunks.map(c => c.name).join('_')}`;
               },
               priority: 10,
               minChunks: 2,
