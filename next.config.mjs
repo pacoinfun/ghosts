@@ -2,19 +2,6 @@
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
-  experimental: {
-    turbo: {
-      enabled: true,
-      loaders: {
-        // Configure loaders for improved performance
-        '.js': ['swc-loader'],
-        '.ts': ['swc-loader'],
-        '.tsx': ['swc-loader'],
-      },
-    },
-    optimizeCss: true,
-    optimizePackageImports: ['@radix-ui', '@shadcn']
-  },
   // For Telegram WebApp
   typescript: {
     ignoreBuildErrors: true,
