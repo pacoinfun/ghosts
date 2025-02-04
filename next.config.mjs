@@ -72,50 +72,16 @@ const nextConfig = {
     if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
-        mergeDuplicateChunks: true,
         minimize: true,
-        moduleIds: 'deterministic',
-        runtimeChunk: 'single',
         splitChunks: {
           chunks: 'all',
-          minSize: 20000,
-          minChunks: 1,
-          maxAsyncRequests: 30,
-          maxInitialRequests: 30,
           cacheGroups: {
             default: false,
-            vendors: false,
-            framework: {
+            vendors: {
+              name: 'vendors',
               chunks: 'all',
-              name: 'framework',
-              test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
-              priority: 40,
-              enforce: true,
-            },
-            lib: {
-              test(module) {
-                return module.size() > 160000 &&
-                  /node_modules[/\\]/.test(module.identifier());
-              },
-              name(module) {
-                return `lib-${module.identifier().split('/').pop().replace(/\.[^/.]+$/, '')}`;
-              },
-              priority: 30,
-              minChunks: 1,
-              reuseExistingChunk: true,
-            },
-            commons: {
-              name: 'commons',
-              minChunks: 2,
-              priority: 20,
-            },
-            shared: {
-              name(module, chunks) {
-                return `shared-${chunks.map(c => c.name).join('_')}`;
-              },
+              test: /[\\/]node_modules[\\/]/,
               priority: 10,
-              minChunks: 2,
-              reuseExistingChunk: true,
             },
           },
         },
